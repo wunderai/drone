@@ -22,20 +22,43 @@ steps:
     GOOS: linux
 
 - name: publish
-  image: plugins/docker:18
+  image: wunderai/drone-kaniko:14
+  commands:
+  - /kaniko/plugin.sh
   settings:
-    auto_tag: true
-    auto_tag_suffix: linux-amd64
+    auto_tag: false
+    auto_tag_suffix: ${DRONE_BRANCH}
+    cache: false
     dockerfile: docker/Dockerfile.server.linux.amd64
-    repo: wunderai/drone
-    username:
-      from_secret: docker_username
+    destination_prefix: waiwunderci.azurecr.io/
+    username: waiwunderci
     password:
       from_secret: docker_password
+    registry: waiwunderci.azurecr.io
+    repo: drone
+    tags:
+    - ${DRONE_COMMIT_SHA:0:8}
+    - ${DRONE_BRANCH}-${DRONE_BUILD_NUMBER}
   when:
     event:
     - push
     - tag
+
+#- name: publish
+#  image: plugins/docker:18
+#  settings:
+#    auto_tag: true
+#    auto_tag_suffix: linux-amd64
+#    dockerfile: docker/Dockerfile.server.linux.amd64
+#    repo: wunderai/drone
+#    username:
+#      from_secret: docker_username
+#    password:
+#      from_secret: docker_password
+#  when:
+#    event:
+#    - push
+#    - tag
 
 #---
 #kind: pipeline
